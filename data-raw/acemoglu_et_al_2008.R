@@ -1,0 +1,131 @@
+# code to prepare `acemoglu_et_al_2008` dataset
+
+# Output: acemoglu_et_al_2008.rda
+
+library(readxl)
+library(tidyverse)
+library(sandwich)
+
+import_data <- function(file) {
+  df <- read_excel(file) %>%
+    as.data.frame()
+  # Sort the data by country and year
+  sort_vars <- intersect(c("code_numeric", "year_numeric"), names(df))
+  if (length(sort_vars) > 0) {
+    df <- arrange(df, across(all_of(sort_vars)))
+  }
+  return(df)
+}
+
+data_clean <- function(df, id_var = "code_numeric", time_var = "year_numeric", vars_lag, max_lag = 5) {
+  lag_funs <- setNames(
+    lapply(seq_len(max_lag), function(k) {
+      force(k)
+      function(x) dplyr::lag(x, k)
+    }),
+    paste0("L", seq_len(max_lag))
+  )
+
+  # Generate lags
+  df_out <- df %>%
+    arrange(.data[[id_var]], .data[[time_var]]) %>%
+    group_by(.data[[id_var]]) %>%
+    mutate(
+      across(
+        all_of(vars_lag),
+        c(lag_funs, list(D1 = ~ .x - dplyr::lag(.x, 1))),
+        .names = "{.fn}.{.col}"
+      )
+    ) %>%
+    ungroup()
+
+  # Generate differences
+  for (var in vars_lag) {
+    df_out[[paste0("LD.", var)]] <- df_out[[paste0("L1.", var)]] - df_out[[paste0("L2.", var)]]
+  }
+
+  # Generate year and country dummies
+  id_var_factor <- paste0(id_var, "_factor")
+  df_out[[id_var_factor]] <- factor(df_out[[id_var]])
+  cd_mat <- model.matrix(stats::as.formula(paste0("~", id_var_factor, " - 1")), data = df_out)
+  colnames(cd_mat) <- paste0("cd", seq_len(ncol(cd_mat)))
+
+  time_var_factor <- paste0(time_var, "_factor")
+  df_out[[time_var_factor]] <- factor(df_out[[time_var]])
+  yr_mat <- model.matrix(stats::as.formula(paste0("~", time_var_factor, " - 1")), data = df_out)
+  colnames(yr_mat) <- paste0("yr", seq_len(ncol(yr_mat)))
+
+  df_out <- cbind(df_out, cd_mat, yr_mat)
+
+  return(df_out)
+}
+
+run_feols <- function(formula, data, cluster_var) {
+  # Approach 1
+  model <- lm(formula, data)
+  vcov_cl <- sandwich::vcovCL(model, cluster = data[[cluster_var]], type = "HC1")
+  se_cl <- sqrt(diag(vcov_cl))
+  regressors_vars <- names(coef(model))[!is.na(coef(model))]
+
+  return(list(model = model, se_cl = se_cl, regressors_vars = regressors_vars))
+
+  # Approach 2
+  # fixest::feols(fml = formula, data = data, vcov = as.formula(paste0("~", cluster_var)))
+}
+
+extract_design <- function(data, outcome_var, treatment_vars, regressors_vars) {
+  W1_vars <- setdiff(regressors_vars, c("(Intercept)", treatment_vars))
+
+  keep_vars <- c(outcome_var, treatment_vars, W1_vars)
+  dat <- data[, keep_vars] %>%
+    stats::na.omit()
+
+  list(
+    Y = dat[[outcome_var]],
+    X = dat[, treatment_vars],
+    W1 = dat[, W1_vars]
+  )
+}
+
+data <- import_data("data-raw/acemoglu_et_al_2008/data_5_year_panel.xlsx")
+data <- data_clean(data, vars_lag = c("fhpolrigaug","lrgdpch"))
+
+# data for Table 2 Column 1 (pooled OLS)
+data_pols <- filter(data, sample == 1)
+fml_pols <- as.formula(paste("fhpolrigaug ~ L1.fhpolrigaug + L1.lrgdpch +", paste(paste0("yr", 1:11), collapse = " + ")))
+list_pols <- run_feols(formula = fml_pols, data = data_pols, cluster_var = "code")
+design_pols <- extract_design(
+  data = data_pols,
+  outcome_var = "fhpolrigaug",
+  treatment_vars = c("L1.fhpolrigaug", "L1.lrgdpch"),
+  regressors_vars = list_pols$regressors_vars
+)
+
+pols <- list(
+  df = data_pols,
+  Y = design_pols$Y,
+  X = design_pols$X,
+  W1 = design_pols$W1
+)
+
+# data for Table 2 Column 2 (FE OLS)
+data_feols <- filter(data, sample == 1)
+fml_feols <- as.formula(paste("fhpolrigaug ~ L1.fhpolrigaug + L1.lrgdpch +", paste(paste0("yr", 1:11), collapse = " + "), "+", paste(paste0("cd", 1:210), collapse = " + ")))
+list_feols <- run_feols(formula = fml_feols, data = data_feols, cluster_var = "code")
+design_feols <- extract_design(
+  data = data_feols,
+  outcome_var = "fhpolrigaug",
+  treatment_vars = c("L1.fhpolrigaug", "L1.lrgdpch"),
+  regressors_vars = list_feols$regressors_vars
+)
+
+feols <- list(
+  df = data_feols,
+  Y = design_feols$Y,
+  X = design_feols$X,
+  W1 = design_feols$W1
+)
+
+acemoglu_et_al_2008 <- list(pols = pols, feols = feols)
+
+usethis::use_data(acemoglu_et_al_2008, overwrite = TRUE, compress = "xz")

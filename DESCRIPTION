@@ -1,0 +1,18 @@
+Package: ovbfunc
+Title: Sensitivity of Functions of OLS Coefficients to Omitted Variable Bias
+Version: 0.0.0.9000
+Authors@R: 
+    person("Peizan", "Sheng", , "peizan@uchicago.edu", role = c("aut", "cre"))
+Description: Functions to examine the sensitivity of linear, linear-fractional, 
+    and general functions of OLS coefficients to omitted variable bias.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Imports: 
+    gurobi,
+    Matrix,
+    stats
+Depends: 
+    R (>= 3.5)
+LazyData: true
