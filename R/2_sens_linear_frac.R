@@ -89,7 +89,7 @@ solve_linear_frac_gurobi <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL
 
 #' Sensitivity of linear fractional functions of OLS coefficients
 #'
-#' `sens_linear_frac_gurobi()` calculates the extremal values for linear fractional
+#' `sens_linear_frac()` calculates the extremal values for linear fractional
 #' functions of OLS coefficients
 #' \eqn{f_\text{LF}(\beta) = \frac{c^{\intercal}\beta + c_0}{d^{\intercal}\beta + d_0}} by gurobi.
 #'
@@ -110,8 +110,8 @@ solve_linear_frac_gurobi <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL
 #' * `obj_lb` stores the lower bound of \eqn{f_{LF}(\beta)},
 #' * `obj_ub` stores the upper bound of \eqn{f_{LF}(\beta)}.
 #' @export
-sens_linear_frac_gurobi <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL,
-                                    c, c0, d, d0) {
+sens_linear_frac <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL,
+                             c, c0, d, d0) {
   if (is.null(ellipsoid)) {
     ellipsoid <- precompute_ellipsoid(
       Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2
@@ -137,7 +137,7 @@ sens_linear_frac_gurobi <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL,
     beta_ub = beta_ub,
     obj_lb = obj_lb,
     obj_ub = obj_ub
-    # obj_lb = result_lb$objval,
-    # obj_ub = result_ub$objval
+    # obj_lb_gurobi = result_lb$objval,
+    # obj_ub_gurobi = result_ub$objval
   )
 }

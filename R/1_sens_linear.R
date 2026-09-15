@@ -151,7 +151,7 @@ solve_gurobi_model <- function(model, OutputFlag = 0) {
 #' `solve_linear_gurobi()` solves the optimization problem for linear functions
 #' of OLS coefficients \eqn{f_L(\beta) = c^{\intercal}\beta + c_0} by gurobi.
 #'
-#' @inheritParams sens_linear_analytical
+#' @inheritParams sens_linear
 #' @param sense `"min"` or `"max"`
 #'
 #' @return A gurobi object.
@@ -203,14 +203,7 @@ solve_linear_gurobi <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, c, 
 #' `sens_linear_analytical()` calculates the closed-form sharp identified set for
 #' linear functions of OLS coefficients \eqn{f_L(\beta) = c^{\intercal}\beta + c_0}.
 #'
-#' @param Y A \eqn{N \times 1} vector.
-#' @param X A \eqn{N \times dX} dataframe/matrix.
-#' @param W1 A \eqn{N \times d1} dataframe/matrix or `NULL`.
-#' @param bar_rho A scalar in \eqn{[0, 1)}.
-#' @param bar_R2 A scalar in \eqn{[0, 1)}.
-#' @param ellipsoid Optional output of `precompute_ellipsoid()`.
-#' @param c A \eqn{dX \times 1} vector.
-#' @param c0 A scalar.
+#' @inheritParams sens_linear
 #'
 #' @return A list of 4 objects where:
 #' * `beta_lb` stores the coefficient vector beta attaining the lower bound,
@@ -255,7 +248,7 @@ sens_linear_analytical <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, 
 #' `sens_linear_gurobi()` calculates the sharp identified set for linear functions
 #' of OLS coefficients \eqn{f_L(\beta) = c^{\intercal}\beta + c_0} by gurobi.
 #'
-#' @inheritParams sens_linear_analytical
+#' @inheritParams sens_linear
 #'
 #' @return A list of 4 objects where:
 #' * `beta_lb` stores the coefficient vector beta attaining the lower bound,
@@ -284,4 +277,40 @@ sens_linear_gurobi <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, c, c
     obj_lb = result_lb$objval,
     obj_ub = result_ub$objval
   )
+}
+
+#' Sensitivity of linear functions of OLS coefficients
+#'
+#' `sens_linear()` calculates the sharp identified set for linear functions
+#' of OLS coefficients \eqn{f_L(\beta) = c^{\intercal}\beta + c_0}.
+#'
+#' @param Y A \eqn{N \times 1} vector.
+#' @param X A \eqn{N \times dX} dataframe/matrix.
+#' @param W1 A \eqn{N \times d1} dataframe/matrix or `NULL`.
+#' @param bar_rho A scalar in \eqn{[0, 1)}.
+#' @param bar_R2 A scalar in \eqn{[0, 1)}.
+#' @param ellipsoid Optional output of `precompute_ellipsoid()`.
+#' @param c A \eqn{dX \times 1} vector.
+#' @param c0 A scalar.
+#' @param method `"analytical"` or `"gurobi"`
+#'
+#' @return A list of 4 objects where:
+#' * `beta_lb` stores the coefficient vector beta attaining the lower bound,
+#' * `beta_ub` stores the coefficient vector beta attaining the upper bound,
+#' * `obj_lb` stores the sharp lower bound of \eqn{f_L(\beta)},
+#' * `obj_ub` stores the sharp upper bound of \eqn{f_L(\beta)}.
+#' @export
+sens_linear <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, c, c0, method = "analytical") {
+  if (method == "analytical") {
+    return(sens_linear_analytical(
+      Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2, ellipsoid = ellipsoid,
+      c = c, c0 = c0
+    ))
+  }
+  if (method == "gurobi") {
+    return(sens_linear_gurobi(
+      Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2, ellipsoid = ellipsoid,
+      c = c, c0 = c0
+    ))
+  }
 }

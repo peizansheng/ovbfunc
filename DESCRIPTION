@@ -12,6 +12,7 @@ RoxygenNote: 7.3.3
 Imports: 
     gurobi,
     Matrix,
+    sandwich,
     stats
 Depends: 
     R (>= 3.5)
