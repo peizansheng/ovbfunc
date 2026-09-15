@@ -9,15 +9,15 @@ sens_linear_gurobi(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, c, c0)
 \arguments{
 \item{Y}{A \eqn{N \times 1} vector.}
 
-\item{X}{A \eqn{N \times dX} dataframe/matrix.}
+\item{X}{A \eqn{N \times dX} dataframe/matrix/vector.}
 
-\item{W1}{A \eqn{N \times d1} dataframe/matrix or \code{NULL}.}
+\item{W1}{A \eqn{N \times d1} dataframe/matrix/vector or \code{NULL}.}
 
 \item{bar_rho}{A scalar in \eqn{[0, 1)}.}
 
 \item{bar_R2}{A scalar in \eqn{[0, 1)}.}
 
-\item{ellipsoid}{Optional output of \code{precompute_ellipsoid()}.}
+\item{ellipsoid}{A list computed from \code{precompute_ellipsoid()} (optional).}
 
 \item{c}{A \eqn{dX \times 1} vector.}
 

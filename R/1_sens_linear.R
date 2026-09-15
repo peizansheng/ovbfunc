@@ -61,8 +61,8 @@ largest_can_cor <- function(A, B) {
 #' Precompute the ellipsoid parameters
 #'
 #' @param Y A \eqn{N \times 1} vector.
-#' @param X A \eqn{N \times dX} dataframe/matrix.
-#' @param W1 A \eqn{N \times d1} dataframe/matrix or `NULL`.
+#' @param X A \eqn{N \times dX} dataframe/matrix/vector.
+#' @param W1 A \eqn{N \times d1} dataframe/matrix/vector or `NULL`.
 #' @param bar_rho A scalar in \eqn{[0, 1)}.
 #' @param bar_R2 A scalar in \eqn{[0, 1)}.
 #'
@@ -196,6 +196,97 @@ solve_linear_gurobi <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, c, 
   return(result)
 }
 
+#' Check the validity of the input of ellipsoid
+#'
+#' @inheritParams sens_linear
+#'
+#' @noRd
+check_input_ellipsoid <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid) {
+  # Y
+  if (is.null(Y) || !is.numeric(Y) || !is.vector(Y)) {
+    stop("`Y` must be a numeric vector for the outcome.")
+  }
+  if (anyNA(Y)) {
+    stop("`Y` must not contain missing values.")
+  }
+  n <- length(Y)
+
+  # X
+  if (!(is.matrix(X) || is.data.frame(X) || !is.vector(X))) {
+    stop("`X` must be a matrix, data frame, or vector.")
+  }
+  X <- as.matrix(X)
+  if (!is.numeric(X)) {
+    stop("`X` must be numeric.")
+  }
+  if (nrow(X) != n) {
+    stop("`X` must have the same number of rows as the length of `Y`.")
+  }
+  if (anyNA(X)) {
+    stop("`X` must not contain missing values.")
+  }
+  dX <- ncol(X)
+
+  # W1
+  if (!is.null(W1)) {
+    if (!(is.matrix(W1) || is.data.frame(W1) || !is.vector(W1))) {
+      stop("`W1` must be a matrix, data frame, vector, or `NULL`.")
+    }
+    W1 <- as.matrix(W1)
+    if (!is.numeric(W1)) {
+      stop("`W1` must be numeric.")
+    }
+    if (nrow(W1) != n) {
+      stop("`W1` must have the same number of rows as the length of `Y`.")
+    }
+    if (anyNA(W1)) {
+      stop("`W1` must not contain missing values.")
+    }
+  }
+
+  # bar_rho
+  if (!is.numeric(bar_rho) || length(bar_rho) != 1L || is.na(bar_rho) || !is.finite(bar_rho) || bar_rho < 0 || bar_rho >= 1) {
+    stop("`bar_rho` must be a finite scalar in [0, 1).")
+  }
+
+  # bar_R2
+  if (!is.numeric(bar_R2) || length(bar_R2) != 1L || is.na(bar_R2) || !is.finite(bar_R2) || bar_R2 < 0 || bar_R2 >= 1) {
+    stop("`bar_R2` must be a finite scalar in [0, 1).")
+  }
+
+  # ellipsoid
+  if (!is.null(ellipsoid) && !is.list(ellipsoid)) {
+    stop("`ellipsoid` must be the output of `precompute_ellipsoid()` or `NULL`.")
+  }
+}
+
+#' Check the validity of the input
+#'
+#' @inheritParams sens_linear
+#'
+#' @noRd
+check_input_linear <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid, c, c0, method) {
+  check_input_ellipsoid(
+    Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2, ellipsoid = ellipsoid
+  )
+  dX <- ncol(as.matrix(X))
+
+  # c
+  if (!is.numeric(c) || !is.vector(c) || length(c) != dX || anyNA(c) || any(!is.finite(c))) {
+    stop("`c` must be a finite numeric vector of length ncol(X).")
+  }
+
+  # c0
+  if (!is.numeric(c0) || length(c0) != 1L || is.na(c0) || !is.finite(c0)) {
+    stop("`c0` must be a finite numeric scalar.")
+  }
+
+  # method
+  if (!(method %in% c("analytical", "gurobi"))) {
+    stop('`method` must be either "analytical" or "gurobi".')
+  }
+}
+
 # ----------------------------- Main Functions --------------------------------#
 
 #' Sensitivity of linear functions of OLS coefficients
@@ -285,11 +376,11 @@ sens_linear_gurobi <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, c, c
 #' of OLS coefficients \eqn{f_L(\beta) = c^{\intercal}\beta + c_0}.
 #'
 #' @param Y A \eqn{N \times 1} vector.
-#' @param X A \eqn{N \times dX} dataframe/matrix.
-#' @param W1 A \eqn{N \times d1} dataframe/matrix or `NULL`.
+#' @param X A \eqn{N \times dX} dataframe/matrix/vector.
+#' @param W1 A \eqn{N \times d1} dataframe/matrix/vector or `NULL`.
 #' @param bar_rho A scalar in \eqn{[0, 1)}.
 #' @param bar_R2 A scalar in \eqn{[0, 1)}.
-#' @param ellipsoid Optional output of `precompute_ellipsoid()`.
+#' @param ellipsoid A list computed from `precompute_ellipsoid()` (optional).
 #' @param c A \eqn{dX \times 1} vector.
 #' @param c0 A scalar.
 #' @param method `"analytical"` or `"gurobi"`
@@ -301,6 +392,10 @@ sens_linear_gurobi <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, c, c
 #' * `obj_ub` stores the sharp upper bound of \eqn{f_L(\beta)}.
 #' @export
 sens_linear <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, c, c0, method = "analytical") {
+  check_input_linear(
+    Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2, ellipsoid = ellipsoid,
+    c = c, c0 = c0, method = method
+  )
   if (method == "analytical") {
     return(sens_linear_analytical(
       Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2, ellipsoid = ellipsoid,

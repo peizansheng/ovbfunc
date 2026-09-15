@@ -17,7 +17,7 @@ sens_linear_frac(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, c, c0, d, d0)
 
 \item{bar_R2}{A scalar in \eqn{[0, 1)}.}
 
-\item{ellipsoid}{Optional output of \code{precompute_ellipsoid()}.}
+\item{ellipsoid}{A list computed from \code{precompute_ellipsoid()} (optional).}
 
 \item{c}{A \eqn{dX \times 1} vector.}
 
@@ -37,7 +37,7 @@ A list of 4 objects where:
 }
 }
 \description{
-\code{sens_linear_frac_gurobi()} calculates the extremal values for linear fractional
+\code{sens_linear_frac()} calculates the extremal values for linear fractional
 functions of OLS coefficients
 \eqn{f_\text{LF}(\beta) = \frac{c^{\intercal}\beta + c_0}{d^{\intercal}\beta + d_0}} by gurobi.
 }

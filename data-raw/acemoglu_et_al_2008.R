@@ -43,11 +43,11 @@ for (var in vars_lag) {
 
 # Generate year and country dummies
 ajry$code_numeric_factor <- factor(ajry$code_numeric)
-cd_mat <- model.matrix(stats::as.formula("~ code_numeric_factor - 1"), data = ajry)
+cd_mat <- model.matrix(as.formula("~ code_numeric_factor - 1"), data = ajry)
 colnames(cd_mat) <- paste0("cd", seq_len(ncol(cd_mat)))
 
 ajry$year_numeric_factor <- factor(ajry$year_numeric)
-yr_mat <- model.matrix(stats::as.formula("~ year_numeric_factor - 1"), data = ajry)
+yr_mat <- model.matrix(as.formula("~ year_numeric_factor - 1"), data = ajry)
 colnames(yr_mat) <- paste0("yr", seq_len(ncol(yr_mat)))
 
 ajry <- cbind(ajry, cd_mat, yr_mat)

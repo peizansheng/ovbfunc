@@ -85,6 +85,38 @@ solve_linear_frac_gurobi <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL
   return(result)
 }
 
+#' Check the validity of the input
+#'
+#' @inheritParams sens_linear_frac
+#'
+#' @noRd
+check_input_linear_frac <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid, c, c0, d, d0) {
+  check_input_ellipsoid(
+    Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2, ellipsoid = ellipsoid
+  )
+  dX <- ncol(as.matrix(X))
+
+  # c
+  if (!is.numeric(c) || !is.vector(c) || length(c) != dX || anyNA(c) || any(!is.finite(c))) {
+    stop("`c` must be a finite numeric vector of length ncol(X).")
+  }
+
+  # c0
+  if (!is.numeric(c0) || length(c0) != 1L || is.na(c0) || !is.finite(c0)) {
+    stop("`c0` must be a finite numeric scalar.")
+  }
+
+  # d
+  if (!is.numeric(d) || !is.vector(d) || length(d) != dX || anyNA(d) || any(!is.finite(d))) {
+    stop("`d` must be a finite numeric vector of length ncol(X).")
+  }
+
+  # d0
+  if (!is.numeric(d0) || length(d0) != 1L || is.na(d0) || !is.finite(d0)) {
+    stop("`d0` must be a finite numeric scalar.")
+  }
+}
+
 # ----------------------------- Main Functions --------------------------------#
 
 #' Sensitivity of linear fractional functions of OLS coefficients
@@ -98,7 +130,7 @@ solve_linear_frac_gurobi <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL
 #' @param W1 A \eqn{N \times d1} dataframe/matrix or `NULL`.
 #' @param bar_rho A scalar in \eqn{[0, 1)}.
 #' @param bar_R2 A scalar in \eqn{[0, 1)}.
-#' @param ellipsoid Optional output of `precompute_ellipsoid()`.
+#' @param ellipsoid A list computed from `precompute_ellipsoid()` (optional).
 #' @param c A \eqn{dX \times 1} vector.
 #' @param c0 A scalar.
 #' @param d A \eqn{dX \times 1} vector.
@@ -112,6 +144,10 @@ solve_linear_frac_gurobi <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL
 #' @export
 sens_linear_frac <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL,
                              c, c0, d, d0) {
+  check_input_linear_frac(
+    Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2, ellipsoid = ellipsoid,
+    c = c, c0 = c0, d = d, d0 = d0
+  )
   if (is.null(ellipsoid)) {
     ellipsoid <- precompute_ellipsoid(
       Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2
