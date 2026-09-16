@@ -23,9 +23,9 @@ sens_general(
 \arguments{
 \item{Y}{A \eqn{N \times 1} vector.}
 
-\item{X}{A \eqn{N \times dX} dataframe/matrix.}
+\item{X}{A \eqn{N \times d_X} dataframe/matrix/vector.}
 
-\item{W1}{A \eqn{N \times d1} dataframe/matrix or \code{NULL}.}
+\item{W1}{A \eqn{N \times d1} dataframe/matrix/vector or \code{NULL}.}
 
 \item{bar_rho}{A scalar in \eqn{[0, 1)}.}
 
@@ -35,9 +35,9 @@ sens_general(
 
 \item{f}{Objective function \eqn{f(\beta)} -> scalar.}
 
-\item{grad_f}{Gradient function \eqn{\nabla f(\beta)} -> \eqn{dX \times 1} vector.}
+\item{grad_f}{Gradient function \eqn{\nabla f(\beta)} -> \eqn{d_X \times 1} vector.}
 
-\item{beta_init}{Initial feasible point (\eqn{dX \times 1} vector).}
+\item{beta_init}{Initial feasible point (\eqn{d_X \times 1} vector).}
 
 \item{step_size}{Fixed step size (scalar), or "backtrack" for backtracking line search.}
 

@@ -3,10 +3,10 @@
 #' Project a point onto the ellipsoid
 #' E = {beta: (beta_med - beta)' Sigma (beta_med - beta) <= r^2}
 #'
-#' @param z A \eqn{dX \times 1} vector to project.
+#' @param z A \eqn{d_X \times 1} vector to project.
 #' @param ellipsoid A list computed from `precompute_ellipsoid()`.
 #'
-#' @return A \eqn{dX \times 1} vector.
+#' @return A \eqn{d_X \times 1} vector.
 #' @noRd
 project_ellipsoid <- function(z, ellipsoid) {
   beta_med <- ellipsoid$beta_med
@@ -172,14 +172,14 @@ check_input_general <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid,
 #' OLS coefficients \eqn{f_\text{g}(\beta)} by projected gradient descent.
 #'
 #' @param Y A \eqn{N \times 1} vector.
-#' @param X A \eqn{N \times dX} dataframe/matrix.
-#' @param W1 A \eqn{N \times d1} dataframe/matrix or `NULL`.
+#' @param X A \eqn{N \times d_X} dataframe/matrix/vector.
+#' @param W1 A \eqn{N \times d1} dataframe/matrix/vector or `NULL`.
 #' @param bar_rho A scalar in \eqn{[0, 1)}.
 #' @param bar_R2 A scalar in \eqn{[0, 1)}.
 #' @param ellipsoid A list computed from `precompute_ellipsoid()` (optional).
 #' @param f Objective function \eqn{f(\beta)} -> scalar.
-#' @param grad_f Gradient function \eqn{\nabla f(\beta)} -> \eqn{dX \times 1} vector.
-#' @param beta_init Initial feasible point (\eqn{dX \times 1} vector).
+#' @param grad_f Gradient function \eqn{\nabla f(\beta)} -> \eqn{d_X \times 1} vector.
+#' @param beta_init Initial feasible point (\eqn{d_X \times 1} vector).
 #' @param step_size Fixed step size (scalar), or "backtrack" for backtracking line search.
 #' @param max_iter Maximum number of iterations.
 #' @param tol Convergence tolerance on \eqn{\|\beta^{t+1} - \beta^t\|}.

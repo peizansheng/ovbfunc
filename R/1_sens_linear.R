@@ -61,21 +61,21 @@ largest_can_cor <- function(A, B) {
 #' Precompute the ellipsoid parameters
 #'
 #' @param Y A \eqn{N \times 1} vector.
-#' @param X A \eqn{N \times dX} dataframe/matrix/vector.
-#' @param W1 A \eqn{N \times d1} dataframe/matrix/vector or `NULL`.
+#' @param X A \eqn{N \times d_X} dataframe/matrix/vector.
+#' @param W1 A \eqn{N \times d_1} dataframe/matrix/vector or `NULL`.
 #' @param bar_rho A scalar in \eqn{[0, 1)}.
 #' @param bar_R2 A scalar in \eqn{[0, 1)}.
 #'
 #' @return A list of 10 objects where:
-#' * `beta_med`: OLS coefficients on \eqn{X} in the medium regression (\eqn{dX \times 1}).
+#' * `beta_med`: OLS coefficients on \eqn{X} in the medium regression (\eqn{d_X \times 1}).
 #' * `Sigma`: var-cov matrix of \eqn{X^{\perp W_1}}.
 #' * `Sigma_inv`: the inverse of `Sigma`.
 #' * `Sigma_half`: `Sigma` to the power of 1/2.
 #' * `Sigma_nhalf`: `Sigma` to the power of -1/2.
 #' * `sigma2_Y_perp_XW1`: variance of \eqn{Y^{\perp X, W1}}.
 #' * `radius`: ellipsoid radius scalar.
-#' * `Q`: eigenvector matrix of `Sigma` (\eqn{dX \times dX}).
-#' * `lam`: eigenvalues of `Sigma` (\eqn{dX \times 1}).
+#' * `Q`: eigenvector matrix of `Sigma` (\eqn{d_X \times d_X}).
+#' * `lam`: eigenvalues of `Sigma` (\eqn{d_X \times 1}).
 #' * `lam_sqrt`: square roots of eigenvalues.
 #' @noRd
 precompute_ellipsoid <- function(Y, X, W1, bar_rho, bar_R2) {
@@ -376,12 +376,12 @@ sens_linear_gurobi <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, c, c
 #' of OLS coefficients \eqn{f_L(\beta) = c^{\intercal}\beta + c_0}.
 #'
 #' @param Y A \eqn{N \times 1} vector.
-#' @param X A \eqn{N \times dX} dataframe/matrix/vector.
-#' @param W1 A \eqn{N \times d1} dataframe/matrix/vector or `NULL`.
+#' @param X A \eqn{N \times d_X} dataframe/matrix/vector.
+#' @param W1 A \eqn{N \times d_1} dataframe/matrix/vector or `NULL`.
 #' @param bar_rho A scalar in \eqn{[0, 1)}.
 #' @param bar_R2 A scalar in \eqn{[0, 1)}.
 #' @param ellipsoid A list computed from `precompute_ellipsoid()` (optional).
-#' @param c A \eqn{dX \times 1} vector.
+#' @param c A \eqn{d_X \times 1} vector.
 #' @param c0 A scalar.
 #' @param method `"analytical"` or `"gurobi"`
 #'

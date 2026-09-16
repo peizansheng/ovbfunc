@@ -112,6 +112,28 @@ ajry_ovb_func <- function(acemoglu_et_al_2008) {
       f = f, grad_f = grad_f, beta_init = c(0.7, 0.1), step_size = 0.01,
       max_iter = 5000, tol = 1e-8, verbose = 0
     )
+
+    # Draw sensitivity analysis of linear function
+    plot_ellipsoid(
+      Y = Y, X = X, W1 = W1, bar_rho = 0.3, bar_R2 = 0.3, ellipsoid = NULL,
+      func = "linear", func_list = list(c = c(1, 1), c0 = 0),
+      output_file = paste0("acemoglu_et_al_2008_", method, "_sens_linear.pdf")
+    )
+
+    # Draw sensitivity analysis of linear fractional function
+    plot_ellipsoid(
+      Y = Y, X = X, W1 = W1, bar_rho = 0.3, bar_R2 = 0.3, ellipsoid = NULL,
+      func = "linear_frac", func_list = list(c = c(0, 1), c0 = 0, d = c(-1, 0), d0 = 1),
+      output_file = paste0("acemoglu_et_al_2008_", method, "_sens_linear_frac.pdf")
+    )
+
+    for (j in 1:2) {
+      plot_breakdown_frontier(
+        Y = Y, X = X, W1 = W1, bar_rho = 0.3, bar_R2 = 0.3, ellipsoid = NULL,
+        j = j, npoints = 100,
+        output_file = paste0("acemoglu_et_al_2008_", method, "_bf_", j, ".pdf")
+      )
+    }
   }
   return(result)
 }

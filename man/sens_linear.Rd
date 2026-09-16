@@ -19,9 +19,9 @@ sens_linear(
 \arguments{
 \item{Y}{A \eqn{N \times 1} vector.}
 
-\item{X}{A \eqn{N \times dX} dataframe/matrix/vector.}
+\item{X}{A \eqn{N \times d_X} dataframe/matrix/vector.}
 
-\item{W1}{A \eqn{N \times d1} dataframe/matrix/vector or \code{NULL}.}
+\item{W1}{A \eqn{N \times d_1} dataframe/matrix/vector or \code{NULL}.}
 
 \item{bar_rho}{A scalar in \eqn{[0, 1)}.}
 
@@ -29,7 +29,7 @@ sens_linear(
 
 \item{ellipsoid}{A list computed from \code{precompute_ellipsoid()} (optional).}
 
-\item{c}{A \eqn{dX \times 1} vector.}
+\item{c}{A \eqn{d_X \times 1} vector.}
 
 \item{c0}{A scalar.}
 

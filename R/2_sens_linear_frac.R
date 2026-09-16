@@ -126,14 +126,14 @@ check_input_linear_frac <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid, c, c0,
 #' \eqn{f_\text{LF}(\beta) = \frac{c^{\intercal}\beta + c_0}{d^{\intercal}\beta + d_0}} by gurobi.
 #'
 #' @param Y A \eqn{N \times 1} vector.
-#' @param X A \eqn{N \times dX} dataframe/matrix.
-#' @param W1 A \eqn{N \times d1} dataframe/matrix or `NULL`.
+#' @param X A \eqn{N \times d_X} dataframe/matrix/vector.
+#' @param W1 A \eqn{N \times d_1} dataframe/matrix/vector or `NULL`.
 #' @param bar_rho A scalar in \eqn{[0, 1)}.
 #' @param bar_R2 A scalar in \eqn{[0, 1)}.
 #' @param ellipsoid A list computed from `precompute_ellipsoid()` (optional).
-#' @param c A \eqn{dX \times 1} vector.
+#' @param c A \eqn{d_X \times 1} vector.
 #' @param c0 A scalar.
-#' @param d A \eqn{dX \times 1} vector.
+#' @param d A \eqn{d_X \times 1} vector.
 #' @param d0 A scalar.
 #'
 #' @return A list of 4 objects where:
