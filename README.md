@@ -69,5 +69,5 @@ To replicate sensitivity analysis in Acemoglu et al (2008), run the
 following code.
 
 ``` r
-ajry_ovb_func(acemoglu_et_al_2008 = acemoglu_et_al_2008)
+result <- ajry_ovb_func(acemoglu_et_al_2008 = acemoglu_et_al_2008)
 ```

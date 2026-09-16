@@ -77,6 +77,7 @@ ajry_setup_data <- function(acemoglu_et_al_2008, method) {
 #' @param acemoglu_et_al_2008 A dataframe of replication data of Acemoglu et al (2008).
 #' @export
 ajry_ovb_func <- function(acemoglu_et_al_2008) {
+  result <- list(pols = NULL, feol = NULL)
   for (method in c("pols", "feols")) {
     # Prepare ajry data
     ajry_data <- ajry_setup_data(
@@ -86,19 +87,19 @@ ajry_ovb_func <- function(acemoglu_et_al_2008) {
     X <- ajry_data$X
     W1 <- ajry_data$W1
 
-    sens_linear(
+    result[[method]]$sens_linear <- sens_linear(
       Y = Y, X = X, W1 = W1, bar_rho = 0.3, bar_R2 = 0.3, ellipsoid = NULL,
       c = c(1, 1), c0 = 0, method = "analytical"
     )
 
-    sens_linear_frac(
+    result[[method]]$sens_linear_frac <- sens_linear_frac(
       Y = Y, X = X, W1 = W1, bar_rho = 0.3, bar_R2 = 0.3, ellipsoid = NULL,
       c = c(0, 1), c0 = 0, d = c(-1, 0), d0 = 1
     )
 
     f <- function(beta) sum(beta)
     grad_f <- function(beta) c(1,1)
-    sens_general(
+    result[[method]]$sens_general_linear <- sens_general(
       Y = Y, X = X, W1 = W1, bar_rho = 0.3, bar_R2 = 0.3, ellipsoid = NULL,
       f = f, grad_f = grad_f, beta_init = c(0.7, 0.1), step_size = 0.01,
       max_iter = 5000, tol = 1e-8, verbose = 0
@@ -106,10 +107,11 @@ ajry_ovb_func <- function(acemoglu_et_al_2008) {
 
     f <- function(beta) beta[2]/(1 - beta[1])
     grad_f <- function(beta) c(beta[2]/((1 - beta[1])^2), 1/(1 - beta[1]))
-    sens_general(
+    result[[method]]$sens_general_linear_frac <- sens_general(
       Y = Y, X = X, W1 = W1, bar_rho = 0.3, bar_R2 = 0.3, ellipsoid = NULL,
       f = f, grad_f = grad_f, beta_init = c(0.7, 0.1), step_size = 0.01,
       max_iter = 5000, tol = 1e-8, verbose = 0
     )
   }
+  return(result)
 }
