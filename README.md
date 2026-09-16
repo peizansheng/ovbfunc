@@ -1,0 +1,73 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# ovbfunc
+
+<!-- badges: start -->
+
+<!-- badges: end -->
+
+The `ovbfunc` package implements the method for assessing the
+sensitivity of functions of OLS coefficients to omitted variable bias.
+Given a medium regression and a known function, the method computes the
+range of estimates consistent with assumptions in a neighborhood of that
+baseline.
+
+## Installation
+
+You can install the development version of `ovbfunc` from its GitHub
+repository via
+
+``` r
+# install.packages("devtools")
+devtools::install_github("peizansheng/ovbfunc")
+```
+
+## Load the Package
+
+``` r
+library(ovbfunc)
+```
+
+## Main Functions
+
+`ovbfunc` provide three main functions:
+
+``` r
+sens_linear(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, c, c0, method = "analytical")
+```
+
+where:
+
+- `Y`: outcome (A $N \times 1$ vector)
+- `X`: treatments (A $N \times d_X$ dataframe/matrix/vector)
+- `W1`: observed controls (A $N \times d1$ dataframe/matrix/vector or
+  `NULL`)
+- `bar_rho`: sensitivity parameter (A scalar in $[0, 1)$)
+- `bar_R2`: sensitivity parameter (A scalar in $[0, 1)$)
+- `ellipsoid`: optional constraints of ellipsoid (A list computed from
+  `precompute_ellipsoid()`)
+- `c`: linear function coefficient (A $d_X \times 1$ vector)
+- `c0`: linear function intercept (A scalar)
+- `method`: solve method (`"analytical"` or `"gurobi"`)
+
+``` r
+sens_linear_frac(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, c, c0, d, d0)
+```
+
+``` r
+sens_general(
+  Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL,
+  f, grad_f, beta_init, step_size = 0.01,
+  max_iter = 5000, tol = 1e-8, verbose = 100
+)
+```
+
+## Example
+
+To replicate sensitivity analysis in Acemoglu et al (2008), run the
+following code.
+
+``` r
+ajry_ovb_func(acemoglu_et_al_2008 = acemoglu_et_al_2008)
+```

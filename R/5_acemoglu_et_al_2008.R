@@ -74,7 +74,8 @@ ajry_setup_data <- function(acemoglu_et_al_2008, method) {
 # ----------------------------- Main Functions --------------------------------#
 
 #' ajry application
-#' @param acemoglu_et_al_2008 A dataframe of replication data of Acemoglu et al (2008)
+#' @param acemoglu_et_al_2008 A dataframe of replication data of Acemoglu et al (2008).
+#' @export
 ajry_ovb_func <- function(acemoglu_et_al_2008) {
   for (method in c("pols", "feols")) {
     # Prepare ajry data

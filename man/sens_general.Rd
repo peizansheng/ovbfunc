@@ -33,17 +33,17 @@ sens_general(
 
 \item{ellipsoid}{A list computed from \code{precompute_ellipsoid()} (optional).}
 
-\item{f}{Objective function f(beta) -> scalar.}
+\item{f}{Objective function \eqn{f(\beta)} -> scalar.}
 
-\item{grad_f}{Gradient function grad_f(beta) -> d-vector.}
+\item{grad_f}{Gradient function \eqn{\nabla f(\beta)} -> \eqn{dX \times 1} vector.}
 
-\item{beta_init}{Initial feasible point (d-vector).}
+\item{beta_init}{Initial feasible point (\eqn{dX \times 1} vector).}
 
 \item{step_size}{Fixed step size (scalar), or "backtrack" for backtracking line search.}
 
 \item{max_iter}{Maximum number of iterations.}
 
-\item{tol}{Convergence tolerance on \eqn{\|beta^{t+1} - beta^t\|}.}
+\item{tol}{Convergence tolerance on \eqn{\|\beta^{t+1} - \beta^t\|}.}
 
 \item{verbose}{Print progress every \code{verbose} iterations (0 = silent).}
 }

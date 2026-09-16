@@ -7,7 +7,7 @@
 ajry_ovb_func(acemoglu_et_al_2008)
 }
 \arguments{
-\item{acemoglu_et_al_2008}{A dataframe of replication data of Acemoglu et al (2008)}
+\item{acemoglu_et_al_2008}{A dataframe of replication data of Acemoglu et al (2008).}
 }
 \description{
 ajry application

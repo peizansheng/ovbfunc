@@ -9,11 +9,11 @@
 #' @return A \eqn{dX \times 1} vector.
 #' @noRd
 project_ellipsoid <- function(z, ellipsoid) {
-  Q <- ellipsoid$Q
-  lam <- ellipsoid$lam
-  lam_sqrt <- ellipsoid$lam_sqrt
   beta_med <- ellipsoid$beta_med
   radius <- ellipsoid$radius
+  Q <- ellipsoid$Q # matrix of eigenvectors (dX x dX matrix)
+  lam <- ellipsoid$lam # eigenvalues (dX x 1 vector)
+  lam_sqrt <- ellipsoid$lam_sqrt # square root of eigenvalues (dX x 1 vector)
 
   delta <- beta_med - z # dX x 1 vector
   # w = lam^{1/2} Q' delta  (in eigenbasis) (element-wise)
@@ -94,7 +94,9 @@ proj_grad_descent <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL,
     fval_update <- f(beta_update)
     change <- sqrt(sum((beta_update - beta)^2))
 
-    history <- rbind(history, data.frame(iter = k, f_val = fval_update, step = eta, change = change))
+    history <- rbind(
+      history, data.frame(iter = k, f_val = fval_update, step = eta, change = change)
+    )
 
     beta <- beta_update
     fval <- fval_update
@@ -127,12 +129,12 @@ proj_grad_descent <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL,
 #' @param bar_rho A scalar in \eqn{[0, 1)}.
 #' @param bar_R2 A scalar in \eqn{[0, 1)}.
 #' @param ellipsoid A list computed from `precompute_ellipsoid()` (optional).
-#' @param f Objective function f(beta) -> scalar.
-#' @param grad_f Gradient function grad_f(beta) -> d-vector.
-#' @param beta_init Initial feasible point (d-vector).
+#' @param f Objective function \eqn{f(\beta)} -> scalar.
+#' @param grad_f Gradient function \eqn{\nabla f(\beta)} -> \eqn{dX \times 1} vector.
+#' @param beta_init Initial feasible point (\eqn{dX \times 1} vector).
 #' @param step_size Fixed step size (scalar), or "backtrack" for backtracking line search.
 #' @param max_iter Maximum number of iterations.
-#' @param tol Convergence tolerance on \eqn{\|beta^{t+1} - beta^t\|}.
+#' @param tol Convergence tolerance on \eqn{\|\beta^{t+1} - \beta^t\|}.
 #' @param verbose Print progress every `verbose` iterations (0 = silent).
 #'
 #' @return A list of 6 objects where:
