@@ -37,7 +37,7 @@ library(ovbfunc)
 
 ## Main Functions
 
-`ovbfunc` provide three main functions:
+`ovbfunc` provides three main functions:
 
 ``` r
 sens_linear(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL, c, c0, method = "analytical")

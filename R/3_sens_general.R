@@ -15,6 +15,10 @@ project_ellipsoid <- function(z, ellipsoid) {
   lam <- ellipsoid$lam # eigenvalues (dX x 1 vector)
   lam_sqrt <- ellipsoid$lam_sqrt # square root of eigenvalues (dX x 1 vector)
 
+  if (radius <= 0) {
+    return(as.numeric(beta_med))
+  }
+
   delta <- beta_med - z # dX x 1 vector
   # w = lam^{1/2} Q' delta  (in eigenbasis) (element-wise)
   w <- lam_sqrt * drop(crossprod(Q, delta)) # dX x 1 vector
@@ -61,7 +65,7 @@ project_ellipsoid <- function(z, ellipsoid) {
 #' @noRd
 proj_grad_descent <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL,
                               f, grad_f, beta_init, step_size = 0.01,
-                              max_iter = 5000, tol = 1e-8, verbose = 100) {
+                              max_iter = 5000, tol = 1e-8, verbose = 0) {
   if (is.null(ellipsoid)) {
     ellipsoid <- precompute_ellipsoid(
       Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2
@@ -69,9 +73,10 @@ proj_grad_descent <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL,
   }
   beta <- project_ellipsoid(beta_init, ellipsoid) # ensure feasibility
   fval <- f(beta)
-  history <- data.frame(iter = 0, f_val = fval, step = NA, change = NA)
+  history <- data.frame(iter = 0:max_iter, f_val = fval, step = NA, change = NA)
+  history$f_val[1] <- fval
 
-  for (k in 1:max_iter) {
+  for (k in seq_len(max_iter)) {
     g <- grad_f(beta)
 
     #--- Step size selection ---#
@@ -94,9 +99,9 @@ proj_grad_descent <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL,
     fval_update <- f(beta_update)
     change <- sqrt(sum((beta_update - beta)^2))
 
-    history <- rbind(
-      history, data.frame(iter = k, f_val = fval_update, step = eta, change = change)
-    )
+    history$f_val[k + 1] <- fval_update
+    history$step[k + 1] <- eta
+    history$change[k + 1] <- change
 
     beta <- beta_update
     fval <- fval_update
@@ -113,7 +118,50 @@ proj_grad_descent <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL,
     }
   }
 
+  keep <- seq_len(k + 1)
+  history <- history[keep, ]
+
   list(beta = beta, f_val = fval, history = history)
+}
+
+#' Check the validity of the input of general functions
+#'
+#' @inheritParams sens_general
+#'
+#' @noRd
+check_input_general <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid,
+                                f, grad_f, beta_init, step_size, max_iter, tol) {
+  check_input_ellipsoid(
+    Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2, ellipsoid = ellipsoid
+  )
+  dX <- ncol(as.matrix(X))
+
+  # f and grad_f
+  if (!is.function(f) || !is.function(grad_f)) {
+    stop("`f` and `grad_f` must both be functions.")
+  }
+
+  # beta_init
+  if (!is.numeric(beta_init) || length(beta_init) != dX || anyNA(beta_init) || any(!is.finite(beta_init))) {
+    stop("`beta_init` must be a finite numeric vector of length ncol(X).")
+  }
+
+  # step_size
+  if (!identical(step_size, "backtrack")) {
+    if (!is.numeric(step_size) || length(step_size) != 1 || !is.finite(step_size) || step_size <= 0) {
+      stop('`step_size` must be a positive finite scalar or "backtrack".')
+    }
+  }
+
+  # max_iter
+  if (!is.numeric(max_iter) || length(max_iter) != 1 || !is.finite(max_iter) || max_iter < 1) {
+    stop("`max_iter` must be a positive integer.")
+  }
+
+  # tol
+  if (!is.numeric(tol) || length(tol) != 1 || !is.finite(tol) || tol <= 0) {
+    stop("`tol` must be a positive finite scalar.")
+  }
 }
 
 # ----------------------------- Main Functions --------------------------------#
@@ -147,7 +195,18 @@ proj_grad_descent <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL,
 #' @export
 sens_general <- function(Y, X, W1, bar_rho, bar_R2, ellipsoid = NULL,
                          f, grad_f, beta_init, step_size = 0.01,
-                         max_iter = 5000, tol = 1e-8, verbose = 100) {
+                         max_iter = 5000, tol = 1e-8, verbose = 0) {
+  check_input_general(
+    Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2, ellipsoid = ellipsoid,
+    f = f, grad_f = grad_f, beta_init = beta_init, step_size = step_size,
+    max_iter = max_iter, tol = tol
+  )
+  if (is.null(ellipsoid)) {
+    ellipsoid <- precompute_ellipsoid(
+      Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2
+    )
+  }
+
   result_lb <- proj_grad_descent(
     Y = Y, X = X, W1 = W1, bar_rho = bar_rho, bar_R2 = bar_R2, ellipsoid = ellipsoid,
     f = f, grad_f = grad_f, beta_init = beta_init, step_size = step_size,

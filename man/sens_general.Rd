@@ -17,7 +17,7 @@ sens_general(
   step_size = 0.01,
   max_iter = 5000,
   tol = 1e-08,
-  verbose = 100
+  verbose = 0
 )
 }
 \arguments{
